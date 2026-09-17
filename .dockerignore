@@ -1,0 +1,14 @@
+.git
+.gitignore
+.cursor
+.cursorignore
+plans
+docs
+*.md
+.env
+.env.*
+node_modules
+web/.next
+web/out
+backend/bin
+backend/tmp

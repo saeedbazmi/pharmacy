@@ -1,0 +1,39 @@
+/*
+ * Single source of colour for the whole UI. Components never hard-code a hex
+ * value; they use the utilities these tokens generate (bg-primary, text-muted,
+ * border-border, ...). Keeping every colour here is what makes a future dark
+ * mode possible without touching components.
+ *
+ * Palette and usage rules come from AGENT.md section 8:
+ *   - accent is reserved for the "buy from pharmacy" button and nothing else
+ *   - colour alone never carries meaning; always pair it with text or an icon
+ */
+@theme {
+  --font-sans:
+    var(--font-vazirmatn), ui-sans-serif, system-ui, "Segoe UI", sans-serif;
+
+  /* Brand: medical trust, deliberately not a loud advertising green. */
+  --color-primary: #0d9488;
+  --color-primary-dark: #0f766e;
+  --color-primary-soft: #ccfbf1;
+
+  /* Reserved for the buy CTA so it never gets lost in the price table. */
+  --color-accent: #ea580c;
+  --color-accent-dark: #c2410c;
+
+  /* Winning price badge. */
+  --color-best-price: #15803d;
+
+  /* Status. */
+  --color-success: #16a34a;
+  --color-warning: #d97706;
+  --color-danger: #dc2626;
+  --color-info: #2563eb;
+
+  /* Text and surfaces. */
+  --color-text: #0f172a;
+  --color-muted: #64748b;
+  --color-border: #e2e8f0;
+  --color-surface: #ffffff;
+  --color-background: #f8fafc;
+}

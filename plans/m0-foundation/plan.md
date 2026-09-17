@@ -13,67 +13,67 @@
 ### [PH1-001] اسکلت ریپو و اجرای محلی
 **تخمین:** M — **نقش اجرا:** backend-dev
 
-- [ ] ساختار پوشه‌ها دقیقاً مطابق بخش ۳ `AGENT.md` ساخته شده است.
-- [ ] `docker-compose.yml` چهار سرویس `db`، `api`، `web`، `worker` را بالا می‌آورد.
-- [ ] `Makefile` هدف‌های `up`، `down`، `migrate`، `sqlc`، `test`، `lint` را دارد.
-- [ ] `deploy/.env.example` همه‌ی متغیرهای لازم را با توضیح دارد و هیچ راز واقعی در ریپو نیست.
+- [x] ساختار پوشه‌ها دقیقاً مطابق بخش ۳ `AGENT.md` ساخته شده است.
+- [x] `docker-compose.yml` چهار سرویس `db`، `api`، `web`، `worker` را بالا می‌آورد.
+- [x] `Makefile` هدف‌های `up`، `down`، `migrate`، `sqlc`، `test`، `lint` را دارد.
+- [x] `deploy/.env.example` همه‌ی متغیرهای لازم را با توضیح دارد و هیچ راز واقعی در ریپو نیست.
 
 ### [PH1-002] سرور HTTP و middlewareهای پایه
 **تخمین:** M — **نقش اجرا:** backend-dev
 
-- [ ] روتر با `net/http` استاندارد و پیشوند `/api/v1` بالا می‌آید.
-- [ ] middlewareها: تولید `request_id`، recover، لاگ دسترسی، timeout درخواست.
-- [ ] `request_id` در `context` جریان دارد و در هدر پاسخ برمی‌گردد.
-- [ ] `/healthz` سرزنده بودن و `/readyz` اتصال دیتابیس را بررسی می‌کند.
-- [ ] `internal/http/errors.go` قالب واحد خطا را با `errors.Is` تولید می‌کند.
+- [x] روتر با `net/http` استاندارد و پیشوند `/api/v1` بالا می‌آید.
+- [x] middlewareها: تولید `request_id`، recover، لاگ دسترسی، timeout درخواست.
+- [x] `request_id` در `context` جریان دارد و در هدر پاسخ برمی‌گردد.
+- [x] `/healthz` سرزنده بودن و `/readyz` اتصال دیتابیس را بررسی می‌کند.
+- [x] `internal/http/errors.go` قالب واحد خطا را با `errors.Is` تولید می‌کند.
 
 ### [PH1-003] لاگر ساختاریافته
 **تخمین:** S — **نقش اجرا:** backend-dev
 
-- [ ] `slog` با خروجی JSON روی stdout و سطح قابل تنظیم از env.
-- [ ] فیلدهای پایه در همه رکوردها: `time`، `level`، `msg`، `service`، `request_id`.
-- [ ] یک helper ماسک‌کردن شماره موبایل وجود دارد و در تست پوشش دارد.
-- [ ] هیچ لاگی توکن، کوکی، کد OTP یا شماره کامل موبایل چاپ نمی‌کند.
+- [x] `slog` با خروجی JSON روی stdout و سطح قابل تنظیم از env.
+- [x] فیلدهای پایه در همه رکوردها: `time`، `level`، `msg`، `service`، `request_id`.
+- [x] یک helper ماسک‌کردن شماره موبایل وجود دارد و در تست پوشش دارد.
+- [x] هیچ لاگی توکن، کوکی، کد OTP یا شماره کامل موبایل چاپ نمی‌کند.
 
 ### [PH1-004] اتصال دیتابیس، config و ابزار مایگریشن
 **تخمین:** M — **نقش اجرا:** backend-dev
 
-- [ ] خواندن config فقط از env با اعتبارسنجی در زمان راه‌اندازی (نبود متغیر لازم = خطای شفاف و توقف).
-- [ ] `pgxpool` با سقف اتصال و timeout مشخص.
-- [ ] `cmd/migrate` مایگریشن‌ها را به‌ترتیب و فقط forward اجرا می‌کند و وضعیت را چاپ می‌کند.
+- [x] خواندن config فقط از env با اعتبارسنجی در زمان راه‌اندازی (نبود متغیر لازم = خطای شفاف و توقف).
+- [x] `pgxpool` با سقف اتصال و timeout مشخص.
+- [x] `cmd/migrate` مایگریشن‌ها را به‌ترتیب و فقط forward اجرا می‌کند و وضعیت را چاپ می‌کند.
 - [ ] `make migrate` روی دیتابیس خالی بدون خطا کامل می‌شود.
 
 ### [PH1-005] مایگریشن اسکیمای هسته
 **تخمین:** L — **نقش اجرا:** backend-dev
 
-- [ ] جداول: `pharmacies`، `data_sources`، `source_items`، `products`، `brands`، `categories`، `offers`، `price_history`.
-- [ ] مبلغ‌ها `BIGINT` ریال و زمان‌ها `TIMESTAMPTZ`.
-- [ ] یکتایی `offers (product_id, pharmacy_id)` و یکتایی `products.slug` اعمال شده است.
-- [ ] `deleted_at` برای موجودیت‌های محتوایی وجود دارد.
-- [ ] ایندکس‌های لازم همراه همین مایگریشن اضافه شده‌اند.
+- [x] جداول: `pharmacies`، `data_sources`، `source_items`، `products`، `brands`، `categories`، `offers`، `price_history`.
+- [x] مبلغ‌ها `BIGINT` ریال و زمان‌ها `TIMESTAMPTZ`.
+- [x] یکتایی `offers (product_id, pharmacy_id)` و یکتایی `products.slug` اعمال شده است.
+- [x] `deleted_at` برای موجودیت‌های محتوایی وجود دارد.
+- [x] ایندکس‌های لازم همراه همین مایگریشن اضافه شده‌اند.
 
 ### [PH1-006] راه‌اندازی sqlc
 **تخمین:** S — **نقش اجرا:** backend-dev
 
-- [ ] `sqlc.yaml` تنظیم شده و `make sqlc` کد تایپ‌سیف تولید می‌کند.
-- [ ] یک کوئری نمونه (`GetProductBySlug`) از `db/queries` تولید و در repository استفاده می‌شود.
-- [ ] هیچ رشته SQL دستی در کد Go وجود ندارد.
+- [x] `sqlc.yaml` تنظیم شده و `make sqlc` کد تایپ‌سیف تولید می‌کند.
+- [x] یک کوئری نمونه (`GetProductBySlug`) از `db/queries` تولید و در repository استفاده می‌شود.
+- [x] هیچ رشته SQL دستی در کد Go وجود ندارد.
 
 ### [PH1-007] اسکلت فرانت با RTL و پالت رنگ
 **تخمین:** M — **نقش اجرا:** frontend-dev
 
-- [ ] `app/layout.tsx` با `lang="fa"` و `dir="rtl"`.
-- [ ] فونت Vazirmatn به‌صورت self-host با `next/font/local` و subset فارسی.
-- [ ] `styles/theme.css` همه‌ی توکن‌های رنگ جدول پالت `AGENT.md` را دارد.
-- [ ] TypeScript در حالت `strict` و لینتر بدون خطا.
-- [ ] یک صفحه نمایش توکن‌ها برای بازبینی چشمی رنگ‌ها وجود دارد (صفحه داخلی، بدون لینک عمومی).
+- [x] `app/layout.tsx` با `lang="fa"` و `dir="rtl"`.
+- [x] فونت Vazirmatn به‌صورت self-host با `next/font/local` و subset فارسی.
+- [x] `styles/theme.css` همه‌ی توکن‌های رنگ جدول پالت `AGENT.md` را دارد.
+- [x] TypeScript در حالت `strict` و لینتر بدون خطا.
+- [x] یک صفحه نمایش توکن‌ها برای بازبینی چشمی رنگ‌ها وجود دارد (صفحه داخلی، بدون لینک عمومی).
 
 ### [PH1-008] کلاینت API فرانت
 **تخمین:** S — **نقش اجرا:** frontend-dev
 
-- [ ] `lib/api` تنها نقطه‌ی فراخوانی بک‌اند است.
-- [ ] تایپ پاسخ‌ها در `lib/api/types.ts` و بدون `any`.
-- [ ] قالب خطای بک‌اند به خطای قابل نمایش فارسی نگاشت می‌شود و `request_id` برای پیگیری نگه داشته می‌شود.
+- [x] `lib/api` تنها نقطه‌ی فراخوانی بک‌اند است.
+- [x] تایپ پاسخ‌ها در `lib/api/types.ts` و بدون `any`.
+- [x] قالب خطای بک‌اند به خطای قابل نمایش فارسی نگاشت می‌شود و `request_id` برای پیگیری نگه داشته می‌شود.
 
 ---
 
@@ -90,6 +90,6 @@
 
 - [ ] `make up` سه سرویس را بالا می‌آورد و `/readyz` سبز است.
 - [ ] `make migrate` روی دیتابیس خالی موفق است.
-- [ ] لاگ JSON با `request_id` در stdout دیده می‌شود.
-- [ ] `make lint` و `make test` تمیزند.
-- [ ] `docs/status.md` ساخته و وضعیت M0 در آن ثبت شده است.
+- [x] لاگ JSON با `request_id` در stdout دیده می‌شود.
+- [x] `make lint` و `make test` تمیزند.
+- [x] `docs/status.md` ساخته و وضعیت M0 در آن ثبت شده است.

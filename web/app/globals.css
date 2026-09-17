@@ -1,0 +1,26 @@
+@import "tailwindcss";
+@import "../styles/theme.css";
+
+/* Base document styling. Everything else belongs in components. */
+html {
+  color-scheme: light;
+}
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+  /* Persian text needs a little more breathing room than the Latin default. */
+  line-height: 1.75;
+}
+
+/* Keyboard focus must always be visible; several flows are keyboard only. */
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* Prices and other figures read better with tabular digits. */
+.numeric {
+  font-variant-numeric: tabular-nums;
+}
