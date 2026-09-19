@@ -8,57 +8,57 @@
 
 ## PH1-009 — صف job و worker · B
 
-- [ ] 009.1 مایگریشن `jobs` با `kind`، `payload JSONB`، `status`، `attempts`، `max_attempts`، `run_at`، `last_error`
-- [ ] 009.2 مایگریشن `sync_runs` با `source_id`، زمان شروع/پایان، شمارش موفق/ناموفق، وضعیت
-- [ ] 009.3 `platform/jobq`: `Enqueue` و `Claim` با `FOR UPDATE SKIP LOCKED`
-- [ ] 009.4 محاسبه backoff نمایی و گذار به `failed` پس از `max_attempts`
-- [ ] 009.5 `cmd/worker/main.go`: حلقه اجرا با سقف همزمانی (`errgroup` + `SetLimit`) و graceful shutdown
-- [ ] 009.6 زمان‌بند: ساخت job برای هر `data_source` طبق `schedule` بدون ساخت job تکراری
-- [ ] 009.7 تضمین idempotency: تست اجرای دوباره‌ی یک job روی همان داده
-- [ ] 009.8 لاگ رویدادهای `sync.started`، `sync.completed`، `crawl.failed`
-- [ ] 009.9 تست همزمانی: دو worker یک job را دو بار برنمی‌دارند
+- [x] 009.1 مایگریشن `jobs` با `kind`، `payload JSONB`، `status`، `attempts`، `max_attempts`، `run_at`، `last_error`
+- [x] 009.2 مایگریشن `sync_runs` با `source_id`، زمان شروع/پایان، شمارش موفق/ناموفق، وضعیت
+- [x] 009.3 `platform/jobq`: `Enqueue` و `Claim` با `FOR UPDATE SKIP LOCKED`
+- [x] 009.4 محاسبه backoff نمایی و گذار به `failed` پس از `max_attempts`
+- [x] 009.5 `cmd/worker/main.go`: حلقه اجرا با سقف همزمانی (`errgroup` + `SetLimit`) و graceful shutdown
+- [x] 009.6 زمان‌بند: ساخت job برای هر `data_source` طبق `schedule` بدون ساخت job تکراری
+- [x] 009.7 تضمین idempotency: تست اجرای دوباره‌ی یک job روی همان داده
+- [x] 009.8 لاگ رویدادهای `sync.started`، `sync.completed`، `crawl.failed`
+- [x] 009.9 تست همزمانی: دو worker یک job را دو بار برنمی‌دارند
 
 ## PH1-010 — اولین Fetcher و نرمال‌سازی فارسی · B
 
-- [ ] 010.1 تعریف اینترفیس `Fetcher` و تایپ `RawItem` در `module/ingest`
-- [ ] 010.2 ذخیره‌ی نمونه پاسخ واقعی منبع در `module/ingest/testdata/`
-- [ ] 010.3 پیاده‌سازی Fetcher داروخانه اول (API یا کرال) با timeout و User-Agent شفاف
-- [ ] 010.4 `platform/textfa`: نرمال‌سازی فارسی مشترک + تست جدولی موارد مرزی
-- [ ] 010.5 rate-limit به‌تفکیک دامنه و backoff در لایه HTTP کرال
-- [ ] 010.6 بررسی و رعایت `robots.txt`
-- [ ] 010.7 ذخیره‌ی خام در `source_items` با `external_id` و `fetched_at` (بدون حذف داده قبلی)
-- [ ] 010.8 تست Fetcher روی `testdata` و بدون تماس شبکه
-- [ ] 010.9 اعتبارسنجی URL منبع (فقط `http`/`https`، مسدودسازی IP داخلی)
+- [x] 010.1 تعریف اینترفیس `Fetcher` و تایپ `RawItem` در `module/ingest`
+- [x] 010.2 ذخیره‌ی نمونه پاسخ واقعی منبع در `module/ingest/testdata/`
+- [x] 010.3 پیاده‌سازی Fetcher داروخانه اول (API یا کرال) با timeout و User-Agent شفاف
+- [x] 010.4 `platform/textfa`: نرمال‌سازی فارسی مشترک + تست جدولی موارد مرزی
+- [x] 010.5 rate-limit به‌تفکیک دامنه و backoff در لایه HTTP کرال
+- [x] 010.6 بررسی و رعایت `robots.txt`
+- [x] 010.7 ذخیره‌ی خام در `source_items` با `external_id` و `fetched_at` (بدون حذف داده قبلی)
+- [x] 010.8 تست Fetcher روی `testdata` و بدون تماس شبکه
+- [x] 010.9 اعتبارسنجی URL منبع (فقط `http`/`https`، مسدودسازی IP داخلی)
 
 ## PH1-012 — تطبیق مرحله اول · B
 
-- [ ] 012.1 استخراج کد یکتا (GTIN/IRC) از `raw` در نرمال‌ساز منبع
-- [ ] 012.2 تابع خالص تطبیق: کد یکتا → نام نرمال‌شده دقیق → بدون تطبیق
-- [ ] 012.3 تست جدولی تطبیق با موارد مرزی (کد تکراری، نام یکسان با دوز متفاوت)
-- [ ] 012.4 ساخت/به‌روزرسانی `products` از `source_item` تطبیق‌یافته
-- [ ] 012.5 تولید `slug` یکتا و پایدار (تغییر نام کالا slug را نمی‌شکند)
-- [ ] 012.6 مایگریشن `match_candidates` و صف کردن موارد بدون تطبیق برای M4
-- [ ] 012.7 لاگ `match.linked` و `match.queued`
+- [x] 012.1 استخراج کد یکتا (GTIN/IRC) از `raw` در نرمال‌ساز منبع
+- [x] 012.2 تابع خالص تطبیق: کد یکتا → نام نرمال‌شده دقیق → بدون تطبیق
+- [x] 012.3 تست جدولی تطبیق با موارد مرزی (کد تکراری، نام یکسان با دوز متفاوت)
+- [x] 012.4 ساخت/به‌روزرسانی `products` از `source_item` تطبیق‌یافته
+- [x] 012.5 تولید `slug` یکتا و پایدار (تغییر نام کالا slug را نمی‌شکند)
+- [x] 012.6 مایگریشن `match_candidates` و صف کردن موارد بدون تطبیق برای M4
+- [x] 012.7 لاگ `match.linked` و `match.queued`
 
 ## PH1-013 — ثبت offer و API عمومی کالا · B
 
-- [ ] 013.1 کوئری sqlc برای upsert دسته‌ای `offers` (batch یا `COPY`، بدون حلقه تک‌ردیفی)
-- [ ] 013.2 به‌روزرسانی `last_seen_at` در هر سینک، حتی وقتی قیمت تغییر نکرده
-- [ ] 013.3 درج `price_history` فقط در صورت تغییر قیمت
-- [ ] 013.4 `GET /api/v1/products/{slug}` با کالا و offerهایش
-- [ ] 013.5 فیلتر کالای `hidden` و حذف‌شده نرم در همه کوئری‌های عمومی
-- [ ] 013.6 لاگ `offer.updated` در سطح خلاصه‌ی هر اجرا، نه به‌ازای هر آیتم
-- [ ] 013.7 بازبینی N+1 روی مسیر صفحه کالا
+- [x] 013.1 کوئری sqlc برای upsert دسته‌ای `offers` (batch یا `COPY`، بدون حلقه تک‌ردیفی)
+- [x] 013.2 به‌روزرسانی `last_seen_at` در هر سینک، حتی وقتی قیمت تغییر نکرده
+- [x] 013.3 درج `price_history` فقط در صورت تغییر قیمت
+- [x] 013.4 `GET /api/v1/products/{slug}` با کالا و offerهایش
+- [x] 013.5 فیلتر کالای `hidden` و حذف‌شده نرم در همه کوئری‌های عمومی
+- [x] 013.6 لاگ `offer.updated` در سطح خلاصه‌ی هر اجرا، نه به‌ازای هر آیتم
+- [x] 013.7 بازبینی N+1 روی مسیر صفحه کالا
 
 ## PH1-011 — صفحه کالا (SSR) · F
 
-- [ ] 011.1 مسیر `app/(public)/product/[slug]/page.tsx` به‌صورت Server Component
-- [ ] 011.2 کامپوننت `ProductHeader` با تصویر، نام فارسی/لاتین، ماده مؤثره، شکل دارویی، دوز، برند
-- [ ] 011.3 کامپوننت نمایش offer با قیمت، موجودی (متن + رنگ) و زمان آخرین به‌روزرسانی
-- [ ] 011.4 استفاده از `formatPrice` و `formatRelativeTime`
-- [ ] 011.5 `loading.tsx` با skeleton هم‌ابعاد و `error.tsx` با پیام فارسی و تلاش مجدد
-- [ ] 011.6 حالت خالی (کالا بدون offer) و `notFound` برای slug ناموجود
-- [ ] 011.7 بازبینی: هیچ `"use client"` در ریشه صفحه، هیچ hex رنگی در کامپوننت
+- [x] 011.1 مسیر `app/(public)/product/[slug]/page.tsx` به‌صورت Server Component
+- [x] 011.2 کامپوننت `ProductHeader` با تصویر، نام فارسی/لاتین، ماده مؤثره، شکل دارویی، دوز، برند
+- [x] 011.3 کامپوننت نمایش offer با قیمت، موجودی (متن + رنگ) و زمان آخرین به‌روزرسانی
+- [x] 011.4 استفاده از `formatPrice` و `formatRelativeTime`
+- [x] 011.5 `loading.tsx` با skeleton هم‌ابعاد و `error.tsx` با پیام فارسی و تلاش مجدد
+- [x] 011.6 حالت خالی (کالا بدون offer) و `notFound` برای slug ناموجود
+- [x] 011.7 بازبینی: هیچ `"use client"` در ریشه صفحه، هیچ hex رنگی در کامپوننت
 
 ---
 
@@ -68,7 +68,7 @@
 
 ## بازبینی پایانی
 
-- [ ] همه معیارهای پذیرش `plan.md` تیک خورده‌اند
-- [ ] تست‌های Fetcher، نرمال‌سازی و تطبیق سبزند
-- [ ] هیچ ادغام خودکار حدسی روی کالاها انجام نشده است
-- [ ] `docs/status.md` و `docs/metrics.md` (پوشش و تازگی قیمت) به‌روز شده‌اند
+- [x] همه معیارهای پذیرش `plan.md` تیک خورده‌اند
+- [x] تست‌های Fetcher، نرمال‌سازی و تطبیق سبزند
+- [x] هیچ ادغام خودکار حدسی روی کالاها انجام نشده است
+- [x] `docs/status.md` و `docs/metrics.md` (پوشش و تازگی قیمت) به‌روز شده‌اند

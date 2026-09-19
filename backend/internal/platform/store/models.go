@@ -6,7 +6,32 @@ package store
 
 import (
 	"time"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
+
+type AlertDelivery struct {
+	ID        int64
+	AlertID   int64
+	EventKey  string
+	Status    string
+	Attempts  int32
+	LastError *string
+	SentAt    *time.Time
+	CreatedAt time.Time
+}
+
+type AuditLog struct {
+	ID         int64
+	ActorID    *int64
+	ActorName  string
+	Entity     string
+	EntityID   string
+	Action     string
+	BeforeData []byte
+	AfterData  []byte
+	CreatedAt  time.Time
+}
 
 type Brand struct {
 	ID        int64
@@ -29,6 +54,12 @@ type Category struct {
 	DeletedAt *time.Time
 }
 
+type CategorySlugRedirect struct {
+	OldSlug    string
+	CategoryID int64
+	CreatedAt  time.Time
+}
+
 type DataSource struct {
 	ID               int64
 	PharmacyID       int64
@@ -42,20 +73,109 @@ type DataSource struct {
 	CreatedAt        time.Time
 	UpdatedAt        time.Time
 	DeletedAt        *time.Time
+	PriceRejectCount int32
+}
+
+type Favorite struct {
+	UserID    int64
+	ProductID int64
+	CreatedAt time.Time
+}
+
+type FeatureFlag struct {
+	ID         int64
+	Key        string
+	PharmacyID *int64
+	Enabled    bool
+	UpdatedAt  time.Time
+}
+
+type InternalSession struct {
+	ID        int64
+	UserID    int64
+	TokenHash string
+	ExpiresAt time.Time
+	CreatedAt time.Time
+}
+
+type InternalUser struct {
+	ID           int64
+	Username     string
+	PasswordHash string
+	Role         string
+	IsActive     bool
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
+	DeletedAt    *time.Time
+}
+
+type Job struct {
+	ID          int64
+	Kind        string
+	Payload     []byte
+	Status      string
+	Attempts    int32
+	MaxAttempts int32
+	RunAt       time.Time
+	LastError   *string
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
+}
+
+type LoginAttempt struct {
+	ID          int64
+	Username    string
+	Ip          string
+	AttemptedAt time.Time
+}
+
+type MatchCandidate struct {
+	ID                 int64
+	SourceItemID       int64
+	SuggestedProductID *int64
+	Score              pgtype.Numeric
+	Status             string
+	Reason             string
+	CreatedAt          time.Time
+	UpdatedAt          time.Time
+	DecidedBy          *int64
+	DecidedAt          *time.Time
+	PreviousProductID  *int64
+	LinkedProductID    *int64
 }
 
 type Offer struct {
+	ID                int64
+	ProductID         int64
+	PharmacyID        int64
+	SourceItemID      *int64
+	PriceRial         int64
+	InStock           bool
+	ProductUrl        string
+	Status            string
+	LastSeenAt        time.Time
+	CreatedAt         time.Time
+	UpdatedAt         time.Time
+	ProposedPriceRial *int64
+	ProposedAt        *time.Time
+}
+
+type OtpCode struct {
 	ID           int64
-	ProductID    int64
-	PharmacyID   int64
-	SourceItemID *int64
-	PriceRial    int64
-	InStock      bool
-	ProductUrl   string
-	Status       string
-	LastSeenAt   time.Time
+	Phone        string
+	CodeHash     string
+	ExpiresAt    time.Time
+	ConsumedAt   *time.Time
+	AttemptCount int32
+	Ip           string
 	CreatedAt    time.Time
-	UpdatedAt    time.Time
+}
+
+type OtpSend struct {
+	ID        int64
+	Phone     string
+	Ip        string
+	CreatedAt time.Time
 }
 
 type Pharmacy struct {
@@ -70,6 +190,20 @@ type Pharmacy struct {
 	DeletedAt  *time.Time
 }
 
+type PriceAlert struct {
+	ID                int64
+	UserID            int64
+	ProductID         int64
+	Kind              string
+	TargetPriceRial   *int64
+	BaselinePriceRial int64
+	StockWasAvailable bool
+	Status            string
+	CreatedAt         time.Time
+	UpdatedAt         time.Time
+	DeletedAt         *time.Time
+}
+
 type PriceHistory struct {
 	ID         int64
 	OfferID    int64
@@ -81,23 +215,51 @@ type PriceHistory struct {
 }
 
 type Product struct {
-	ID          int64
-	Slug        string
-	NameFa      string
-	NameEn      *string
-	GenericName *string
-	DosageForm  *string
-	Strength    *string
-	BrandID     *int64
-	CategoryID  *int64
-	ImageUrl    *string
-	Description *string
-	Gtin        *string
-	Irc         *string
-	Status      string
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
-	DeletedAt   *time.Time
+	ID             int64
+	Slug           string
+	NameFa         string
+	NameEn         *string
+	GenericName    *string
+	DosageForm     *string
+	Strength       *string
+	BrandID        *int64
+	CategoryID     *int64
+	ImageUrl       *string
+	Description    *string
+	Gtin           *string
+	Irc            *string
+	Status         string
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
+	DeletedAt      *time.Time
+	NameNormalized string
+	SearchDocument string
+	LockedFields   []string
+	SourceSnapshot []byte
+}
+
+type RedirectClick struct {
+	ID         int64
+	ClickedAt  time.Time
+	OfferID    int64
+	ProductID  int64
+	PharmacyID int64
+	Referrer   *string
+}
+
+type SearchQuery struct {
+	ID              int64
+	QueriedAt       time.Time
+	QueryNormalized string
+	ResultCount     int32
+	DurationMs      int32
+	UserID          *int64
+}
+
+type SiteSetting struct {
+	Key       string
+	Value     []byte
+	UpdatedAt time.Time
 }
 
 type SourceItem struct {
@@ -109,4 +271,32 @@ type SourceItem struct {
 	FetchedAt  time.Time
 	CreatedAt  time.Time
 	UpdatedAt  time.Time
+}
+
+type SyncRun struct {
+	ID         int64
+	SourceID   int64
+	StartedAt  time.Time
+	FinishedAt *time.Time
+	Status     string
+	OkCount    int32
+	FailCount  int32
+	Error      *string
+}
+
+type User struct {
+	ID        int64
+	Phone     string
+	Role      string
+	CreatedAt time.Time
+	UpdatedAt time.Time
+	DeletedAt *time.Time
+}
+
+type UserSession struct {
+	ID        int64
+	UserID    int64
+	TokenHash string
+	ExpiresAt time.Time
+	CreatedAt time.Time
 }

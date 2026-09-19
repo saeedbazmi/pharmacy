@@ -32,6 +32,27 @@ func TestLoadAppliesDefaults(t *testing.T) {
 	if cfg.DBMaxConns != 10 {
 		t.Errorf("DBMaxConns = %d, want 10", cfg.DBMaxConns)
 	}
+	if cfg.PriceJumpRatio != 0.70 {
+		t.Errorf("PriceJumpRatio = %g, want 0.70", cfg.PriceJumpRatio)
+	}
+	if cfg.OfferStaleAfter != 24*time.Hour {
+		t.Errorf("OfferStaleAfter = %v, want 24h", cfg.OfferStaleAfter)
+	}
+	if cfg.OfferCriticalAfter != 72*time.Hour {
+		t.Errorf("OfferCriticalAfter = %v, want 72h", cfg.OfferCriticalAfter)
+	}
+	if cfg.CrawlTimeout != 15*time.Second {
+		t.Errorf("CrawlTimeout = %v, want 15s", cfg.CrawlTimeout)
+	}
+	if !cfg.OTPPrintCode {
+		t.Error("OTPPrintCode should default to true in development")
+	}
+	if cfg.OTPPepper != "dev-only-otp-pepper" {
+		t.Errorf("OTPPepper = %q", cfg.OTPPepper)
+	}
+	if cfg.WorkerHTTPAddr != ":8081" {
+		t.Errorf("WorkerHTTPAddr = %q, want :8081", cfg.WorkerHTTPAddr)
+	}
 }
 
 func TestLoadRequiresDatabaseURL(t *testing.T) {
@@ -75,6 +96,7 @@ func TestLoadRejectsNonPositiveDuration(t *testing.T) {
 func TestIsProduction(t *testing.T) {
 	t.Setenv("DATABASE_URL", validDSN)
 	t.Setenv("APP_ENV", "production")
+	t.Setenv("OTP_PEPPER", "production-otp-pepper-key")
 
 	cfg, err := Load()
 	if err != nil {
@@ -82,5 +104,19 @@ func TestIsProduction(t *testing.T) {
 	}
 	if !cfg.IsProduction() {
 		t.Error("IsProduction() = false, want true")
+	}
+	if cfg.OTPPrintCode {
+		t.Error("OTPPrintCode must default to false in production")
+	}
+}
+
+func TestLoadProductionRequiresOTPPepper(t *testing.T) {
+	t.Setenv("DATABASE_URL", validDSN)
+	t.Setenv("APP_ENV", "production")
+	t.Setenv("OTP_PEPPER", "")
+	t.Setenv("OTP_PRINT_CODE", "false")
+
+	if _, err := Load(); err == nil {
+		t.Fatal("production must require OTP_PEPPER")
 	}
 }

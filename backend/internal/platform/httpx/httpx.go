@@ -27,6 +27,9 @@ func WriteJSON(w http.ResponseWriter, status int, v any) {
 // ErrBodyTooLarge is returned when a request body exceeds the configured limit.
 var ErrBodyTooLarge = errors.New("request body too large")
 
+// ErrInvalidJSON is returned when the body is not a single JSON object.
+var ErrInvalidJSON = errors.New("invalid json")
+
 // ReadJSON decodes a bounded request body into dst and rejects unknown fields
 // so a typo in a client payload fails loudly instead of being ignored.
 func ReadJSON(w http.ResponseWriter, r *http.Request, dst any, maxBytes int64) error {
@@ -40,10 +43,10 @@ func ReadJSON(w http.ResponseWriter, r *http.Request, dst any, maxBytes int64) e
 		if errors.As(err, &maxErr) {
 			return ErrBodyTooLarge
 		}
-		return fmt.Errorf("decode json body: %w", err)
+		return fmt.Errorf("%w: %v", ErrInvalidJSON, err)
 	}
 	if err := dec.Decode(&struct{}{}); !errors.Is(err, io.EOF) {
-		return errors.New("body must contain a single json object")
+		return ErrInvalidJSON
 	}
 	return nil
 }

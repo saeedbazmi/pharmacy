@@ -28,6 +28,30 @@ func (s stubProductReader) ProductBySlug(context.Context, string) (catalog.Produ
 	return s.product, s.err
 }
 
+func (s stubProductReader) ListPublished(context.Context, int32) ([]catalog.ProductSummary, error) {
+	return nil, nil
+}
+
+func (s stubProductReader) ProductsBySlugs(context.Context, []string) ([]catalog.ProductSummary, error) {
+	return nil, nil
+}
+
+func (s stubProductReader) ListSitemap(context.Context) ([]catalog.SitemapEntry, error) {
+	return nil, nil
+}
+
+func (s stubProductReader) ListCategorySitemap(context.Context) ([]catalog.SitemapEntry, error) {
+	return nil, nil
+}
+
+func (s stubProductReader) CategoryBySlug(context.Context, string) (catalog.Category, error) {
+	return catalog.Category{}, catalog.ErrCategoryNotFound
+}
+
+func (s stubProductReader) ListByCategory(context.Context, string, int32) ([]catalog.ProductSummary, error) {
+	return nil, nil
+}
+
 func newTestRouter(t *testing.T, pinger Pinger, reader catalog.ProductReader) http.Handler {
 	t.Helper()
 	log := slog.New(slog.NewJSONHandler(io.Discard, nil))
@@ -163,11 +187,21 @@ func TestInvalidSlugIsMappedTo400(t *testing.T) {
 
 func TestProductIsServedAsJSON(t *testing.T) {
 	updated := time.Date(2026, 9, 17, 8, 30, 0, 0, time.UTC)
+	seen := time.Date(2026, 9, 17, 8, 0, 0, 0, time.UTC)
 	router := newTestRouter(t, stubPinger{}, stubProductReader{product: catalog.Product{
 		ID:        42,
 		Slug:      "acetaminophen-500",
 		NameFa:    "استامینوفن ۵۰۰",
 		UpdatedAt: updated,
+		Offers: []catalog.Offer{{
+			ID:           9,
+			PriceRial:    3464000,
+			InStock:      true,
+			ProductURL:   "https://darukade.com/products/x",
+			LastSeenAt:   seen,
+			PharmacyName: "داروکده",
+			PharmacySlug: "darukade",
+		}},
 	}})
 
 	rec := httptest.NewRecorder()
@@ -190,17 +224,32 @@ func TestProductIsServedAsJSON(t *testing.T) {
 	if body["name_fa"] != "استامینوفن ۵۰۰" {
 		t.Errorf("name_fa = %v: persian text must survive encoding", body["name_fa"])
 	}
+	offers, ok := body["offers"].([]any)
+	if !ok || len(offers) != 1 {
+		t.Fatalf("offers = %v, want one offer", body["offers"])
+	}
+	offer, _ := offers[0].(map[string]any)
+	if offer["pharmacy_slug"] != "darukade" {
+		t.Errorf("pharmacy_slug = %v", offer["pharmacy_slug"])
+	}
+	if offer["best_price"] != true {
+		t.Errorf("best_price = %v, want true for the only offer", offer["best_price"])
+	}
 }
 
 func TestReservedRouteGroupsAnswerNotImplemented(t *testing.T) {
 	router := newTestRouter(t, stubPinger{}, stubProductReader{})
 
-	for _, path := range []string{"/api/v1/ops/sources", "/api/v1/admin/users"} {
-		rec := httptest.NewRecorder()
-		router.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, path, nil))
-		if rec.Code != http.StatusNotImplemented {
-			t.Errorf("%s: status = %d, want 501", path, rec.Code)
-		}
+	rec := httptest.NewRecorder()
+	router.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/api/v1/ops/sources", nil))
+	if rec.Code != http.StatusUnauthorized {
+		t.Errorf("/api/v1/ops/sources: status = %d, want 401", rec.Code)
+	}
+
+	rec = httptest.NewRecorder()
+	router.ServeHTTP(rec, httptest.NewRequest(http.MethodGet, "/api/v1/admin/users", nil))
+	if rec.Code != http.StatusUnauthorized {
+		t.Errorf("/api/v1/admin/users: status = %d, want 401", rec.Code)
 	}
 }
 

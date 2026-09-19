@@ -9,6 +9,7 @@ import (
 	"runtime/debug"
 	"time"
 
+	"github.com/saeedbazmi/pharmacy/backend/internal/module/identity"
 	"github.com/saeedbazmi/pharmacy/backend/internal/platform/httpx"
 	"github.com/saeedbazmi/pharmacy/backend/internal/platform/reqctx"
 )
@@ -106,6 +107,15 @@ func withMaxBody(maxBytes int64) middleware {
 			}
 			next.ServeHTTP(w, r)
 		})
+	}
+}
+
+func withUser(h *identity.Handler) middleware {
+	return func(next http.Handler) http.Handler {
+		if h == nil {
+			return next
+		}
+		return h.Attach(next)
 	}
 }
 

@@ -7,7 +7,13 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/saeedbazmi/pharmacy/backend/internal/module/admin"
+	"github.com/saeedbazmi/pharmacy/backend/internal/module/alerting"
 	"github.com/saeedbazmi/pharmacy/backend/internal/module/catalog"
+	"github.com/saeedbazmi/pharmacy/backend/internal/module/identity"
+	"github.com/saeedbazmi/pharmacy/backend/internal/module/ops"
+	"github.com/saeedbazmi/pharmacy/backend/internal/module/redirect"
+	"github.com/saeedbazmi/pharmacy/backend/internal/module/search"
 )
 
 // Deps are everything the router needs, passed in explicitly.
@@ -15,6 +21,12 @@ type Deps struct {
 	Log            *slog.Logger
 	DB             Pinger
 	Catalog        *catalog.Service
+	Search         *search.Handler
+	Redirect       *redirect.Handler
+	Ops            *ops.Handler
+	Identity       *identity.Handler
+	Alerting       *alerting.Handler
+	Admin          *admin.Handler
 	RequestTimeout time.Duration
 	DBTimeout      time.Duration
 	MaxBodyBytes   int64
@@ -31,12 +43,27 @@ func NewRouter(d Deps) http.Handler {
 	mux.Handle("GET /readyz", readiness(d.DB, d.DBTimeout))
 
 	// Public API.
-	catalog.NewHandler(d.Catalog, writeError).Register(mux)
+	catalog.NewHandler(d.Catalog, d.Search, writeError).Register(mux)
+	if d.Redirect != nil {
+		d.Redirect.Register(mux)
+	}
 
-	// Route groups reserved for later milestones. They answer explicitly instead
-	// of falling through to a confusing 404 once the panel work starts.
-	mux.HandleFunc("/api/v1/ops/", notImplemented)
-	mux.HandleFunc("/api/v1/admin/", notImplemented)
+	if d.Ops != nil {
+		d.Ops.Register(mux)
+	} else {
+		mux.HandleFunc("/api/v1/ops/", unauthorizedOps)
+	}
+	if d.Identity != nil {
+		d.Identity.Register(mux)
+	}
+	if d.Alerting != nil {
+		d.Alerting.Register(mux)
+	}
+	if d.Admin != nil {
+		d.Admin.Register(mux)
+	} else {
+		mux.HandleFunc("/api/v1/admin/", unauthorizedOps)
+	}
 
 	mux.HandleFunc("/", notFound)
 
@@ -46,12 +73,13 @@ func NewRouter(d Deps) http.Handler {
 		withAccessLog(d.Log),
 		withTimeout(d.RequestTimeout),
 		withMaxBody(d.MaxBodyBytes),
+		withUser(d.Identity),
 	)
 }
 
-func notImplemented(w http.ResponseWriter, r *http.Request) {
-	writeProblem(w, r, http.StatusNotImplemented,
-		"not_implemented", "این بخش هنوز پیاده‌سازی نشده است.")
+func unauthorizedOps(w http.ResponseWriter, r *http.Request) {
+	writeProblem(w, r, http.StatusUnauthorized,
+		"unauthorized", "برای ادامه وارد شوید.")
 }
 
 func notFound(w http.ResponseWriter, r *http.Request) {

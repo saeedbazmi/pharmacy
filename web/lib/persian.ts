@@ -30,6 +30,7 @@ export function normalizePersian(input: string): string {
     .replace(/[\u064B-\u0652\u0670]/g, "") // harakat
     .replace(/\u200C/g, " ") // ZWNJ -> space
     .replace(/[\u200B\u200D\u200E\u200F\uFEFF]/g, "") // other zero-width marks
+    .replace(/[\u0000-\u001F\u007F]/g, "") // control characters
     .replace(/\s+/g, " ")
     .trim();
 }

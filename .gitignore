@@ -26,6 +26,7 @@ pnpm-debug.log*
 
 # داده محلی و پشتیبان
 /data/
+/deploy/backups/
 *.dump
 *.sqlite
 

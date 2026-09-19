@@ -17,15 +17,22 @@ import (
 
 // Config holds every setting the api and worker processes need.
 type Config struct {
-	Env             string
-	LogLevel        slog.Level
-	HTTPAddr        string
-	DatabaseURL     string
-	DBMaxConns      int32
-	DBTimeout       time.Duration
-	RequestTimeout  time.Duration
-	ShutdownTimeout time.Duration
-	MaxBodyBytes    int64
+	Env                string
+	LogLevel           slog.Level
+	HTTPAddr           string
+	DatabaseURL        string
+	DBMaxConns         int32
+	DBTimeout          time.Duration
+	RequestTimeout     time.Duration
+	ShutdownTimeout    time.Duration
+	MaxBodyBytes       int64
+	PriceJumpRatio     float64
+	OfferStaleAfter    time.Duration
+	OfferCriticalAfter time.Duration
+	CrawlTimeout       time.Duration
+	OTPPepper          string
+	OTPPrintCode       bool
+	WorkerHTTPAddr     string
 }
 
 // IsProduction reports whether the process runs in the production environment.
@@ -39,8 +46,9 @@ func Load() (Config, error) {
 	}
 
 	cfg := Config{
-		Env:      optionalString("APP_ENV", "development"),
-		HTTPAddr: optionalString("HTTP_ADDR", ":8080"),
+		Env:            optionalString("APP_ENV", "development"),
+		HTTPAddr:       optionalString("HTTP_ADDR", ":8080"),
+		WorkerHTTPAddr: optionalString("WORKER_HTTP_ADDR", ":8081"),
 	}
 
 	switch cfg.Env {
@@ -86,6 +94,43 @@ func Load() (Config, error) {
 	}
 	cfg.MaxBodyBytes = int64(maxBody)
 
+	ratio, err := optionalFloat("PRICE_JUMP_RATIO", 0.70)
+	if err != nil {
+		fail("%v", err)
+	} else if ratio <= 0 || ratio > 5 {
+		fail("PRICE_JUMP_RATIO must be between 0 exclusive and 5, got %g", ratio)
+	}
+	cfg.PriceJumpRatio = ratio
+
+	if cfg.OfferStaleAfter, err = optionalDuration("OFFER_STALE_AFTER", 24*time.Hour); err != nil {
+		fail("%v", err)
+	}
+	if cfg.OfferCriticalAfter, err = optionalDuration("OFFER_CRITICAL_AFTER", 72*time.Hour); err != nil {
+		fail("%v", err)
+	}
+	if cfg.OfferCriticalAfter < cfg.OfferStaleAfter {
+		fail("OFFER_CRITICAL_AFTER must be greater than or equal to OFFER_STALE_AFTER")
+	}
+	if cfg.CrawlTimeout, err = optionalDuration("CRAWL_TIMEOUT", 15*time.Second); err != nil {
+		fail("%v", err)
+	}
+
+	printDefault := cfg.Env != "production"
+	if cfg.OTPPrintCode, err = optionalBool("OTP_PRINT_CODE", printDefault); err != nil {
+		fail("%v", err)
+	}
+	if cfg.IsProduction() && cfg.OTPPrintCode {
+		fail("OTP_PRINT_CODE must be false in production")
+	}
+	pepperDefault := ""
+	if !cfg.IsProduction() {
+		pepperDefault = "dev-only-otp-pepper"
+	}
+	cfg.OTPPepper = optionalString("OTP_PEPPER", pepperDefault)
+	if cfg.IsProduction() && len(cfg.OTPPepper) < 16 {
+		fail("OTP_PEPPER is required in production and must be at least 16 characters")
+	}
+
 	if len(problems) > 0 {
 		return Config{}, fmt.Errorf("invalid configuration:\n  - %s", strings.Join(problems, "\n  - "))
 	}
@@ -111,6 +156,18 @@ func optionalInt(key string, fallback int) (int, error) {
 	return v, nil
 }
 
+func optionalFloat(key string, fallback float64) (float64, error) {
+	raw := strings.TrimSpace(os.Getenv(key))
+	if raw == "" {
+		return fallback, nil
+	}
+	v, err := strconv.ParseFloat(raw, 64)
+	if err != nil {
+		return 0, fmt.Errorf("%s must be a number, got %q", key, raw)
+	}
+	return v, nil
+}
+
 func optionalDuration(key string, fallback time.Duration) (time.Duration, error) {
 	raw := strings.TrimSpace(os.Getenv(key))
 	if raw == "" {
@@ -122,6 +179,18 @@ func optionalDuration(key string, fallback time.Duration) (time.Duration, error)
 	}
 	if v <= 0 {
 		return 0, errors.New(key + " must be greater than zero")
+	}
+	return v, nil
+}
+
+func optionalBool(key string, fallback bool) (bool, error) {
+	raw := strings.TrimSpace(os.Getenv(key))
+	if raw == "" {
+		return fallback, nil
+	}
+	v, err := strconv.ParseBool(raw)
+	if err != nil {
+		return false, fmt.Errorf("%s must be true or false, got %q", key, raw)
 	}
 	return v, nil
 }

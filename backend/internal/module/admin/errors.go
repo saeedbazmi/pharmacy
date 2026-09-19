@@ -1,0 +1,12 @@
+package admin
+
+import "errors"
+
+var (
+	ErrUnauthorized   = errors.New("unauthorized")
+	ErrForbidden      = errors.New("forbidden")
+	ErrInvalidInput   = errors.New("invalid input")
+	ErrNotFound       = errors.New("not found")
+	ErrConflict       = errors.New("conflict")
+	ErrLastSuperAdmin = errors.New("last super admin")
+)

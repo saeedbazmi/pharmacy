@@ -1,0 +1,31 @@
+{
+	email {$CADDY_EMAIL:admin@localhost}
+}
+
+{$SITE_DOMAIN:localhost} {
+	encode gzip zstd
+
+	header /go/* X-Robots-Tag "noindex, nofollow"
+	header /ops/* X-Robots-Tag "noindex, nofollow"
+	header /account X-Robots-Tag "noindex, nofollow"
+	header /login X-Robots-Tag "noindex, nofollow"
+
+	handle /healthz {
+		reverse_proxy api:8080
+	}
+	handle /readyz {
+		reverse_proxy api:8080
+	}
+	handle /healthz/worker {
+		rewrite * /healthz
+		reverse_proxy worker:8081
+	}
+	handle /readyz/worker {
+		rewrite * /readyz
+		reverse_proxy worker:8081
+	}
+
+	handle {
+		reverse_proxy web:3000
+	}
+}

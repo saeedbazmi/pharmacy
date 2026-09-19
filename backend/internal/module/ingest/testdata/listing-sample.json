@@ -1,0 +1,34 @@
+{
+  "props": {
+    "pageProps": {
+      "categoryMataData": {
+        "categoryID": 763,
+        "products": [
+          {
+            "id": 27774,
+            "faName": "کرم ضد چروک و لیفت دور چشم",
+            "productURL": "/products/cosmetic-eye-and-lip-anti-wrinkle-763/cream-wrinkle-repair-and-lift-eye-cream-27774",
+            "image": "https://statics.darukade.com/Images/Products/1850277742023101811.jpg",
+            "brandEnName": "Urelin",
+            "orginalCost": 346400,
+            "discountCost": 346400,
+            "storeState": false,
+            "storeCount": 0
+          },
+          {
+            "id": 1664,
+            "faName": "کرم دور چشم دکتر ژیلا",
+            "productURL": "/products/cosmetic-eye-and-lip-anti-wrinkle-763/cream-dr-jila-eye-contour-cream-1664",
+            "image": "https://statics.darukade.com/Images/Products/1231421664202571611.jpg",
+            "brandEnName": "Dr Jila",
+            "orginalCost": 681900,
+            "discountCost": 647800,
+            "storeState": true,
+            "storeCount": 22
+          }
+        ],
+        "filters": { "pages": { "totalPage": 15, "currentPage": 1 } }
+      }
+    }
+  }
+}

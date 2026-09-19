@@ -54,6 +54,7 @@ interface ButtonLinkProps {
   /** Outbound pharmacy links must not pass link equity. */
   rel?: string;
   target?: string;
+  "aria-label"?: string;
   children: ReactNode;
 }
 
@@ -68,6 +69,7 @@ export function ButtonLink({
   className = "",
   rel,
   target,
+  "aria-label": ariaLabel,
   children,
 }: ButtonLinkProps) {
   return (
@@ -75,6 +77,7 @@ export function ButtonLink({
       href={href}
       rel={rel}
       target={target}
+      aria-label={ariaLabel}
       className={`${BASE_CLASSES} ${VARIANT_CLASSES[variant]} ${SIZE_CLASSES[size]} ${className}`}
     >
       {children}

@@ -1,7 +1,7 @@
 .DEFAULT_GOAL := help
 COMPOSE := docker compose
 
-.PHONY: help up down logs ps migrate sqlc api worker web test lint fmt tidy
+.PHONY: help up down logs ps migrate sqlc api worker web test lint fmt tidy seed-bulk create-ops-user seed-matches backup restore
 
 help: ## Show available targets
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-10s\033[0m %s\n", $$1, $$2}'
@@ -47,3 +47,18 @@ fmt: ## Format backend and frontend sources
 
 tidy: ## Tidy Go module dependencies
 	cd backend && go mod tidy
+
+seed-bulk: ## Insert tens of thousands of realistic-ish products for search benchmarks
+	$(COMPOSE) --profile seed run --rm seedbulk
+
+create-ops-user: ## Create the first data-ops login (OPS_USERNAME / OPS_PASSWORD)
+	$(COMPOSE) --profile ops run --rm opsuser
+
+seed-matches: ## Queue 50 real source items into the match review queue
+	$(COMPOSE) --profile ops run --rm seedmatches
+
+backup: ## Dump Postgres into deploy/backups/
+	bash deploy/backup.sh
+
+restore: ## Restore BACKUP=path.sql.gz (CONFIRM=yes)
+	bash deploy/restore.sh

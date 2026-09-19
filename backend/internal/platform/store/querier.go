@@ -6,10 +6,183 @@ package store
 
 import (
 	"context"
+	"time"
+
+	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type Querier interface {
+	ApproveSuspiciousOffer(ctx context.Context, id int64) (ApproveSuspiciousOfferRow, error)
+	ClaimJob(ctx context.Context) (ClaimJobRow, error)
+	CompleteJob(ctx context.Context, id int64) error
+	ConsumeOTP(ctx context.Context, id int64) (int64, error)
+	CountActiveAlerts(ctx context.Context, userID int64) (int64, error)
+	CountActiveSuperAdmins(ctx context.Context) (int64, error)
+	CountAuditLogs(ctx context.Context, arg CountAuditLogsParams) (int64, error)
+	CountBrandProducts(ctx context.Context, brandID *int64) (int64, error)
+	CountCategoryChildren(ctx context.Context, parentID *int64) (int64, error)
+	CountCategoryProducts(ctx context.Context, categoryID *int64) (int64, error)
+	// Click reports filter on clicked_at so Postgres can prune monthly partitions.
+	CountClicksInRange(ctx context.Context, arg CountClicksInRangeParams) (int64, error)
+	CountMatchPendingKPI(ctx context.Context) (int64, error)
+	CountOTPSendsByIP(ctx context.Context, arg CountOTPSendsByIPParams) (int64, error)
+	CountOTPSendsByPhone(ctx context.Context, arg CountOTPSendsByPhoneParams) (int64, error)
+	CountOpsProducts(ctx context.Context, arg CountOpsProductsParams) (int64, error)
+	CountPendingMatches(ctx context.Context, arg CountPendingMatchesParams) (int64, error)
+	CountRecentLoginAttempts(ctx context.Context, arg CountRecentLoginAttemptsParams) (int64, error)
+	CountSearchProducts(ctx context.Context, arg CountSearchProductsParams) (int64, error)
+	CountSearchesInRange(ctx context.Context, arg CountSearchesInRangeParams) (int64, error)
+	CountSuspiciousOffers(ctx context.Context) (int64, error)
+	// Dashboard, internal users, site settings and feature flags (super_admin).
+	DashboardCoverage(ctx context.Context) (DashboardCoverageRow, error)
+	DecideMatchCandidate(ctx context.Context, arg DecideMatchCandidateParams) error
+	DeleteExpiredSessions(ctx context.Context) error
+	DeleteFavorite(ctx context.Context, arg DeleteFavoriteParams) error
+	DeleteOffer(ctx context.Context, id int64) error
+	DeleteSession(ctx context.Context, tokenHash string) error
+	DeleteUserSearches(ctx context.Context, userID *int64) error
+	DeleteUserSession(ctx context.Context, tokenHash string) error
+	DisableDataSource(ctx context.Context, id int64) error
+	DisablePharmacy(ctx context.Context, id int64) error
+	EnqueueJob(ctx context.Context, arg EnqueueJobParams) (int64, error)
+	EnsureRedirectClicksMonth(ctx context.Context, monthStart pgtype.Date) error
+	FailJob(ctx context.Context, arg FailJobParams) error
+	FavoriteExists(ctx context.Context, arg FavoriteExistsParams) (bool, error)
+	FinishSyncRun(ctx context.Context, arg FinishSyncRunParams) error
+	GetActiveOfferByID(ctx context.Context, id int64) (GetActiveOfferByIDRow, error)
+	GetBrandBySlug(ctx context.Context, slug string) (GetBrandBySlugRow, error)
+	GetCategoryRedirect(ctx context.Context, oldSlug string) (GetCategoryRedirectRow, error)
+	GetDataSource(ctx context.Context, id int64) (GetDataSourceRow, error)
+	GetInternalUserByID(ctx context.Context, id int64) (GetInternalUserByIDRow, error)
+	GetInternalUserByUsername(ctx context.Context, username string) (GetInternalUserByUsernameRow, error)
+	GetLatestOTP(ctx context.Context, phone string) (GetLatestOTPRow, error)
+	GetLatestSyncRun(ctx context.Context, sourceID int64) (GetLatestSyncRunRow, error)
+	GetMatchCandidate(ctx context.Context, id int64) (GetMatchCandidateRow, error)
+	GetOfferByProductPharmacy(ctx context.Context, arg GetOfferByProductPharmacyParams) (GetOfferByProductPharmacyRow, error)
+	GetOfferBySourceItem(ctx context.Context, sourceItemID *int64) (GetOfferBySourceItemRow, error)
+	GetOpsBrand(ctx context.Context, id int64) (GetOpsBrandRow, error)
+	GetOpsCategory(ctx context.Context, id int64) (GetOpsCategoryRow, error)
+	GetOpsCategoryBySlug(ctx context.Context, slug string) (GetOpsCategoryBySlugRow, error)
+	GetOpsPharmacy(ctx context.Context, id int64) (GetOpsPharmacyRow, error)
+	GetOpsProduct(ctx context.Context, id int64) (GetOpsProductRow, error)
+	GetOpsSource(ctx context.Context, id int64) (GetOpsSourceRow, error)
+	GetProductByGTIN(ctx context.Context, gtin *string) (GetProductByGTINRow, error)
+	GetProductByIRC(ctx context.Context, irc *string) (GetProductByIRCRow, error)
+	GetProductByNormalizedName(ctx context.Context, nameNormalized string) (GetProductByNormalizedNameRow, error)
 	GetProductBySlug(ctx context.Context, slug string) (GetProductBySlugRow, error)
+	GetProductLocks(ctx context.Context, id int64) (GetProductLocksRow, error)
+	GetPublishedCategoryBySlug(ctx context.Context, slug string) (GetPublishedCategoryBySlugRow, error)
+	GetPublishedProductsBySlugs(ctx context.Context, arg GetPublishedProductsBySlugsParams) ([]GetPublishedProductsBySlugsRow, error)
+	GetSessionUser(ctx context.Context, tokenHash string) (GetSessionUserRow, error)
+	GetSourceItemByID(ctx context.Context, id int64) (GetSourceItemByIDRow, error)
+	GetSuspiciousOffer(ctx context.Context, id int64) (GetSuspiciousOfferRow, error)
+	GetUserByID(ctx context.Context, id int64) (GetUserByIDRow, error)
+	GetUserByPhone(ctx context.Context, phone string) (GetUserByPhoneRow, error)
+	GetUserBySessionHash(ctx context.Context, tokenHash string) (GetUserBySessionHashRow, error)
+	HasOpenJob(ctx context.Context, arg HasOpenJobParams) (bool, error)
+	HasOpenJobByKind(ctx context.Context, kind string) (bool, error)
+	IncrementOTPAttempts(ctx context.Context, id int64) error
+	IncrementSourcePriceRejects(ctx context.Context, id int64) error
+	InsertAlertDelivery(ctx context.Context, arg InsertAlertDeliveryParams) (int64, error)
+	InsertAuditLog(ctx context.Context, arg InsertAuditLogParams) error
+	InsertBrand(ctx context.Context, arg InsertBrandParams) (int64, error)
+	InsertCategorySlugRedirect(ctx context.Context, arg InsertCategorySlugRedirectParams) error
+	InsertDataSource(ctx context.Context, arg InsertDataSourceParams) (int64, error)
+	InsertInternalUser(ctx context.Context, arg InsertInternalUserParams) (int64, error)
+	InsertLoginAttempt(ctx context.Context, arg InsertLoginAttemptParams) error
+	InsertMatchCandidate(ctx context.Context, arg InsertMatchCandidateParams) error
+	InsertOTPCode(ctx context.Context, arg InsertOTPCodeParams) (int64, error)
+	InsertOTPSend(ctx context.Context, arg InsertOTPSendParams) error
+	InsertOpsBrand(ctx context.Context, arg InsertOpsBrandParams) (int64, error)
+	InsertOpsCategory(ctx context.Context, arg InsertOpsCategoryParams) (int64, error)
+	InsertPharmacy(ctx context.Context, arg InsertPharmacyParams) (int64, error)
+	InsertPriceAlert(ctx context.Context, arg InsertPriceAlertParams) (InsertPriceAlertRow, error)
+	InsertPriceHistory(ctx context.Context, arg InsertPriceHistoryParams) error
+	InsertProduct(ctx context.Context, arg InsertProductParams) (int64, error)
+	InsertRedirectClick(ctx context.Context, arg InsertRedirectClickParams) error
+	InsertSearchQuery(ctx context.Context, arg InsertSearchQueryParams) error
+	InsertSession(ctx context.Context, arg InsertSessionParams) error
+	InsertSyncRun(ctx context.Context, sourceID int64) (int64, error)
+	InsertUser(ctx context.Context, phone string) (InsertUserRow, error)
+	InsertUserSession(ctx context.Context, arg InsertUserSessionParams) error
+	LinkSourceItemProduct(ctx context.Context, arg LinkSourceItemProductParams) error
+	ListActiveAlertsForEval(ctx context.Context) ([]ListActiveAlertsForEvalRow, error)
+	ListActiveOffersByProduct(ctx context.Context, productID int64) ([]ListActiveOffersByProductRow, error)
+	ListActivePharmaciesBrief(ctx context.Context) ([]ListActivePharmaciesBriefRow, error)
+	ListAuditLogs(ctx context.Context, arg ListAuditLogsParams) ([]AuditLog, error)
+	ListClickVolumeByDay(ctx context.Context, arg ListClickVolumeByDayParams) ([]ListClickVolumeByDayRow, error)
+	ListClicksByPharmacy(ctx context.Context, arg ListClicksByPharmacyParams) ([]ListClicksByPharmacyRow, error)
+	ListDueSources(ctx context.Context) ([]ListDueSourcesRow, error)
+	ListFavorites(ctx context.Context, arg ListFavoritesParams) ([]ListFavoritesRow, error)
+	ListFeatureFlags(ctx context.Context) ([]FeatureFlag, error)
+	ListFrequentSearches(ctx context.Context, since time.Time) ([]ListFrequentSearchesRow, error)
+	ListFrequentSearchesInRange(ctx context.Context, arg ListFrequentSearchesInRangeParams) ([]ListFrequentSearchesInRangeRow, error)
+	ListInternalUsers(ctx context.Context) ([]ListInternalUsersRow, error)
+	ListOpsBrands(ctx context.Context) ([]ListOpsBrandsRow, error)
+	ListOpsCategories(ctx context.Context) ([]ListOpsCategoriesRow, error)
+	ListOpsPharmacies(ctx context.Context) ([]ListOpsPharmaciesRow, error)
+	ListOpsProducts(ctx context.Context, arg ListOpsProductsParams) ([]ListOpsProductsRow, error)
+	ListOpsSources(ctx context.Context) ([]ListOpsSourcesRow, error)
+	ListPendingMatches(ctx context.Context, arg ListPendingMatchesParams) ([]ListPendingMatchesRow, error)
+	ListProductQuotes(ctx context.Context, arg ListProductQuotesParams) ([]ListProductQuotesRow, error)
+	ListPublishedCategorySlugs(ctx context.Context) ([]ListPublishedCategorySlugsRow, error)
+	ListPublishedProducts(ctx context.Context, arg ListPublishedProductsParams) ([]ListPublishedProductsRow, error)
+	ListPublishedProductsByCategorySlug(ctx context.Context, arg ListPublishedProductsByCategorySlugParams) ([]ListPublishedProductsByCategorySlugRow, error)
+	ListPublishedSlugs(ctx context.Context) ([]ListPublishedSlugsRow, error)
+	ListRetryableDeliveries(ctx context.Context) ([]ListRetryableDeliveriesRow, error)
+	ListSearchBrands(ctx context.Context) ([]ListSearchBrandsRow, error)
+	ListSearchCategories(ctx context.Context) ([]ListSearchCategoriesRow, error)
+	ListSearchVolumeByDay(ctx context.Context, arg ListSearchVolumeByDayParams) ([]ListSearchVolumeByDayRow, error)
+	ListSiteSettings(ctx context.Context) ([]SiteSetting, error)
+	ListSourceHealth(ctx context.Context) ([]ListSourceHealthRow, error)
+	ListSourceJobs(ctx context.Context, sourceID string) ([]ListSourceJobsRow, error)
+	ListSourceSyncRuns(ctx context.Context, arg ListSourceSyncRunsParams) ([]ListSourceSyncRunsRow, error)
+	ListStaleSources(ctx context.Context) ([]ListStaleSourcesRow, error)
+	ListSuspiciousOffers(ctx context.Context, arg ListSuspiciousOffersParams) ([]ListSuspiciousOffersRow, error)
+	ListSyncSuccessRates(ctx context.Context, arg ListSyncSuccessRatesParams) ([]ListSyncSuccessRatesRow, error)
+	ListTopClickedProducts(ctx context.Context, arg ListTopClickedProductsParams) ([]ListTopClickedProductsRow, error)
+	ListUserAlerts(ctx context.Context, userID int64) ([]ListUserAlertsRow, error)
+	ListUserSearches(ctx context.Context, userID *int64) ([]ListUserSearchesRow, error)
+	ListZeroResultSearches(ctx context.Context, since time.Time) ([]ListZeroResultSearchesRow, error)
+	ListZeroResultSearchesInRange(ctx context.Context, arg ListZeroResultSearchesInRangeParams) ([]ListZeroResultSearchesInRangeRow, error)
+	MarkDeliveryFailed(ctx context.Context, arg MarkDeliveryFailedParams) error
+	MarkDeliverySent(ctx context.Context, id int64) error
+	MarkOfferSuspicious(ctx context.Context, arg MarkOfferSuspiciousParams) error
+	MarkSourceRun(ctx context.Context, arg MarkSourceRunParams) error
+	PublishedProductExists(ctx context.Context, id int64) (bool, error)
+	ReassignBrandProducts(ctx context.Context, arg ReassignBrandProductsParams) error
+	ReassignCategoryProducts(ctx context.Context, arg ReassignCategoryProductsParams) error
+	RejectSuspiciousOffer(ctx context.Context, id int64) error
+	RelinkOfferProduct(ctx context.Context, arg RelinkOfferProductParams) error
+	ReopenMatchCandidate(ctx context.Context, id int64) error
+	// GiST KNN (document <-> query) with LIMIT, no selective WHERE on the
+	// document: an unselective %/LIKE clause would force a seq scan of the
+	// whole catalogue. The caller keeps rows with sim >= MinSimilarity.
+	SearchProducts(ctx context.Context, arg SearchProductsParams) ([]SearchProductsRow, error)
+	SearchProductsByPrice(ctx context.Context, arg SearchProductsByPriceParams) ([]SearchProductsByPriceRow, error)
+	// Used when the match set is small enough that a GIN-filtered scan plus
+	// sort beats an unfiltered KNN pass (short distinctive queries).
+	SearchProductsMatched(ctx context.Context, arg SearchProductsMatchedParams) ([]SearchProductsMatchedRow, error)
+	SetProductSourceSnapshot(ctx context.Context, arg SetProductSourceSnapshotParams) error
+	SlugExists(ctx context.Context, slug string) (bool, error)
+	SoftDeleteAlert(ctx context.Context, arg SoftDeleteAlertParams) (int64, error)
+	SoftDeleteBrand(ctx context.Context, id int64) error
+	SoftDeleteCategory(ctx context.Context, id int64) error
+	UpdateAlertBaseline(ctx context.Context, arg UpdateAlertBaselineParams) error
+	UpdateAlertStockFlag(ctx context.Context, arg UpdateAlertStockFlagParams) error
+	UpdateDataSource(ctx context.Context, arg UpdateDataSourceParams) error
+	UpdateInternalUser(ctx context.Context, arg UpdateInternalUserParams) error
+	UpdateOpsBrand(ctx context.Context, arg UpdateOpsBrandParams) error
+	UpdateOpsCategory(ctx context.Context, arg UpdateOpsCategoryParams) error
+	UpdateOpsProduct(ctx context.Context, arg UpdateOpsProductParams) error
+	UpdatePharmacy(ctx context.Context, arg UpdatePharmacyParams) error
+	UpdateProductFromSource(ctx context.Context, arg UpdateProductFromSourceParams) error
+	UpsertFavorite(ctx context.Context, arg UpsertFavoriteParams) error
+	UpsertGlobalFlag(ctx context.Context, arg UpsertGlobalFlagParams) error
+	UpsertOffer(ctx context.Context, arg UpsertOfferParams) (UpsertOfferRow, error)
+	UpsertPharmacyFlag(ctx context.Context, arg UpsertPharmacyFlagParams) error
+	UpsertSiteSetting(ctx context.Context, arg UpsertSiteSettingParams) error
+	UpsertSourceItem(ctx context.Context, arg UpsertSourceItemParams) (UpsertSourceItemRow, error)
 }
 
 var _ Querier = (*Queries)(nil)
